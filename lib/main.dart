@@ -1,44 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
 import 'dart:async';
 
-void main() async {
-  // Initialize the local notifications plugin
-  WidgetsFlutterBinding.ensureInitialized();
-  await FlutterLocalNotificationsPlugin().initialize(
-    // Add the required initialization settings here
-    const InitializationSettings(
-      android: AndroidInitializationSettings('@mipmap/ic_launcher'),
-    ),
-  );
-
-  // Load the timezone data
-  tz.initializeTimeZones();
-
+void main() {
   runApp(MyApp());
 }
 
-class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
-
-  @override
-  _MyAppState createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
+class MyApp extends StatelessWidget {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
-  bool isTimerRunning = false;
-  int countdownSeconds = 5;
 
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      scheduleNotification();
-    });
+  MyApp() {
+    initializeLocalNotifications();
+    loadTimezoneData();
+  }
+
+  void initializeLocalNotifications() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    await flutterLocalNotificationsPlugin.initialize(
+      const InitializationSettings(
+        android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+      ),
+    );
+  }
+
+  void loadTimezoneData() {
+    tz.initializeTimeZones();
   }
 
   @override
@@ -48,13 +36,38 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Reminder App'),
-        ),
-        body: Center(
-          child: isTimerRunning ? buildCountdown() : buildSetReminderButton(),
-        ),
+      home: ReminderScreen(),
+    );
+  }
+}
+
+class ReminderScreen extends StatefulWidget {
+  const ReminderScreen({Key? key}) : super(key: key);
+
+  @override
+  _ReminderScreenState createState() => _ReminderScreenState();
+}
+
+class _ReminderScreenState extends State<ReminderScreen> {
+  bool isTimerRunning = false;
+  int countdownSeconds = 5;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      scheduleNotification();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Reminder App'),
+      ),
+      body: Center(
+        child: isTimerRunning ? buildCountdown() : buildSetReminderButton(),
       ),
     );
   }
@@ -72,6 +85,7 @@ class _MyAppState extends State<MyApp> {
           onPressed: () {
             setState(() {
               isTimerRunning = false;
+              print('isTimerRunning = false');
             });
           },
           child: const Text('Return to Set Reminder'),

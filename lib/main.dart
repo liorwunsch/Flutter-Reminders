@@ -55,7 +55,7 @@ class _ReminderScreenState extends State<ReminderScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       scheduleNotification();
     });
   }

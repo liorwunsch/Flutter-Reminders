@@ -36,7 +36,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       scheduleNotification();
     });
   }
@@ -81,10 +81,12 @@ class _MyAppState extends State<MyApp> {
   }
 
   Widget buildSetReminderButton() {
+    countdownSeconds = 5;
     return ElevatedButton(
       onPressed: () {
         setState(() {
           isTimerRunning = true;
+          print('isTimerRunning = true');
         });
         startCountdown();
       },
@@ -97,12 +99,15 @@ class _MyAppState extends State<MyApp> {
   }
 
   void startCountdown() {
+    print('startCountdown');
     const oneSecond = Duration(seconds: 1);
     Timer.periodic(oneSecond, (timer) {
       setState(() {
+        print("countdownSeconds = " + countdownSeconds.toString());
         countdownSeconds--;
         if (countdownSeconds <= 0) {
           timer.cancel();
+          print('Countdown completed');
         }
       });
     });

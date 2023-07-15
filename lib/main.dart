@@ -51,6 +51,7 @@ class ReminderScreen extends StatefulWidget {
 class _ReminderScreenState extends State<ReminderScreen> {
   bool isTimerRunning = false;
   int countdownSeconds = 5;
+  int currentCountdown = 5;
 
   @override
   void initState() {
@@ -77,7 +78,7 @@ class _ReminderScreenState extends State<ReminderScreen> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          formatDuration(Duration(seconds: countdownSeconds)),
+          formatDuration(Duration(seconds: currentCountdown)),
           style: const TextStyle(fontSize: 48),
         ),
         const SizedBox(height: 20),
@@ -85,7 +86,7 @@ class _ReminderScreenState extends State<ReminderScreen> {
           onPressed: () {
             setState(() {
               isTimerRunning = false;
-              print('isTimerRunning = false');
+              print('buildCountdown(): isTimerRunning = false');
             });
           },
           child: const Text('Return to Set Reminder'),
@@ -95,16 +96,16 @@ class _ReminderScreenState extends State<ReminderScreen> {
   }
 
   Widget buildSetReminderButton() {
-    countdownSeconds = 5;
+    currentCountdown = countdownSeconds;
     return ElevatedButton(
-      onPressed: () {
-        setState(() {
-          isTimerRunning = true;
-          print('isTimerRunning = true');
-        });
-        startCountdown();
-      },
-      child: const Text('Set Reminder'),
+          onPressed: () {
+            setState(() {
+              isTimerRunning = true;
+              print('buildSetReminderButton(): isTimerRunning = true');
+            });
+            startCountdown();
+          },
+          child: const Text('Set Reminder'),
     );
   }
 
@@ -113,15 +114,15 @@ class _ReminderScreenState extends State<ReminderScreen> {
   }
 
   void startCountdown() {
-    print('startCountdown');
+    print('scheduleNotification(): startCountdown');
     const oneSecond = Duration(seconds: 1);
     Timer.periodic(oneSecond, (timer) {
       setState(() {
-        print("countdownSeconds = " + countdownSeconds.toString());
-        countdownSeconds--;
-        if (countdownSeconds <= 0) {
+        print("scheduleNotification(): currentCountdown = " + currentCountdown.toString());
+        currentCountdown--;
+        if (currentCountdown <= 0) {
           timer.cancel();
-          print('Countdown completed');
+          print('scheduleNotification(): Countdown completed');
         }
       });
     });

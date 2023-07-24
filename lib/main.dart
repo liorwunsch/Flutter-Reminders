@@ -80,11 +80,6 @@ Widget buildCountdown() {
         formatDuration(Duration(seconds: currentCountdown)),
         style: const TextStyle(fontSize: 48),
       ),
-      const SizedBox(height: 20),
-      IconButton(
-        onPressed: () => _selectTime(context),
-        icon: Icon(Icons.edit),
-      ),
       ElevatedButton(
         onPressed: () {
           setState(() {
@@ -107,16 +102,45 @@ Future<void> _selectTime(BuildContext context) async {
 
   if (pickedTime != null) {
     final now = DateTime.now();
-    final selectedDateTime = DateTime(now.year, now.month, now.day, pickedTime.hour, pickedTime.minute);
+    final selectedDateTime =
+        DateTime(now.year, now.month, now.day, pickedTime.hour, pickedTime.minute);
     final countdownDuration = selectedDateTime.difference(now);
 
-    setState(() {
-      isTimerRunning = true;
-      currentCountdown = countdownDuration.inSeconds;
-      print('buildSetReminderButton(): isTimerRunning = true');
-    });
+    if (countdownDuration.inSeconds <= 0) {
+      // Countdown duration is negative or zero, return to the first screen.
+      setState(() {
+        isTimerRunning = false;
+        currentCountdown = 0;
+        print('buildSetReminderButton(): isTimerRunning = false');
+      });
+      
+      // Show a popup for negative or zero countdown duration.
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Invalid Selection'),
+            content: Text('Please select a future time for the reminder.'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      setState(() {
+        isTimerRunning = true;
+        currentCountdown = countdownDuration.inSeconds;
+        print('buildSetReminderButton(): isTimerRunning = true');
+      });
 
-    startCountdown();
+      startCountdown();
+    }
   }
 }
 
@@ -143,16 +167,16 @@ Future<void> _selectTime(BuildContext context) async {
   }
 */
   Widget buildSetReminderButton() {
-    currentCountdown = countdownSeconds;
-    return ElevatedButton(
-          onPressed: () {
-            setState(() {
-              isTimerRunning = true;
-              print('buildSetReminderButton(): isTimerRunning = true');
-            });
-            startCountdown();
-          },
-          child: const Text('Set Reminder'),
+  currentCountdown = countdownSeconds;
+  return Column(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      ElevatedButton(
+        onPressed: () => _selectTime(context),
+        child: const Text('Set Reminder'),
+        ),
+      const SizedBox(height: 20),
+      ],
     );
   }
 

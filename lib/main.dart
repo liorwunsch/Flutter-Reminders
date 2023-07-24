@@ -50,8 +50,8 @@ class ReminderScreen extends StatefulWidget {
 
 class _ReminderScreenState extends State<ReminderScreen> {
   bool isTimerRunning = false;
-  int countdownSeconds = 5;
-  int currentCountdown = 5;
+  int countdownSeconds = 0;
+  int currentCountdown = 0;
 
   @override
   void initState() {
@@ -72,8 +72,55 @@ class _ReminderScreenState extends State<ReminderScreen> {
       ),
     );
   }
+Widget buildCountdown() {
+  return Column(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      Text(
+        formatDuration(Duration(seconds: currentCountdown)),
+        style: const TextStyle(fontSize: 48),
+      ),
+      const SizedBox(height: 20),
+      IconButton(
+        onPressed: () => _selectTime(context),
+        icon: Icon(Icons.edit),
+      ),
+      ElevatedButton(
+        onPressed: () {
+          setState(() {
+            isTimerRunning = false;
+            print('buildCountdown(): isTimerRunning = false');
+          });
+        },
+        child: const Text('Return to Set Reminder'),
+      ),
+    ],
+  );
+}
 
-  Widget buildCountdown() {
+
+Future<void> _selectTime(BuildContext context) async {
+  final TimeOfDay? pickedTime = await showTimePicker(
+    context: context,
+    initialTime: TimeOfDay.now(),
+  );
+
+  if (pickedTime != null) {
+    final now = DateTime.now();
+    final selectedDateTime = DateTime(now.year, now.month, now.day, pickedTime.hour, pickedTime.minute);
+    final countdownDuration = selectedDateTime.difference(now);
+
+    setState(() {
+      isTimerRunning = true;
+      currentCountdown = countdownDuration.inSeconds;
+      print('buildSetReminderButton(): isTimerRunning = true');
+    });
+
+    startCountdown();
+  }
+}
+
+/*  Widget buildCountdown() {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -94,7 +141,7 @@ class _ReminderScreenState extends State<ReminderScreen> {
       ],
     );
   }
-
+*/
   Widget buildSetReminderButton() {
     currentCountdown = countdownSeconds;
     return ElevatedButton(
